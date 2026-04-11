@@ -27,31 +27,6 @@ const UPSCALER_BASE_API_URL = "https://tuan2308-upscaler.hf.space";
 // Z-Image Negative Prompt
 const ZIMAGE_NEGATIVE_PROMPT =
   "worst quality, low quality, JPEG compression artifacts, ugly, incomplete, extra fingers, poorly drawn hands, poorly drawn face, deformed, disfigured, malformed limbs, fused fingers, cluttered background, three legs";
-
-/**
- * 将宽高比转换为 Z-Image 的 resolution 格式
- */
-function getZImageResolution(ar: string): string {
-  switch (ar) {
-    case "1:1":
-      return "1024x1024 ( 1:1 )";
-    case "4:3":
-      return "1152x864 ( 4:3 )";
-    case "3:4":
-      return "864x1152 ( 3:4 )";
-    case "3:2":
-      return "1248x832 ( 3:2 )";
-    case "2:3":
-      return "832x1248 ( 2:3 )";
-    case "16:9":
-      return "1280x720 ( 16:9 )";
-    case "9:16":
-      return "720x1280 ( 9:16 )";
-    default:
-      return "1024x1024 ( 1:1 )";
-  }
-}
-
 /**
  * Hugging Face Provider
  */
@@ -490,7 +465,7 @@ export class HuggingFaceProvider extends BaseProvider {
 
         return { status: "success", url: videoUrl };
       }
-    } catch (err) {
+    } catch {
       await env.VIDEO_TASK_KV.put(
         taskId,
         JSON.stringify({

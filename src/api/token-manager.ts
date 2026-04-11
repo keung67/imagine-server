@@ -15,15 +15,17 @@ const KV_KEY_PREFIX = "token_status_";
 
 // 获取 UTC 日期字符串（用于 Hugging Face）
 function getUTCDateString(): string {
-  return new Date().toISOString().split("T")[0];
+  // 使用 en-CA 或 sv-SE 可获取 YYYY-MM-DD 格式
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "UTC" }).format(
+    new Date(),
+  );
 }
 
 // 获取北京时间日期字符串（用于 Gitee 和 Model Scope）
 function getBeijingDateString(): string {
-  const d = new Date();
-  const utc = d.getTime() + d.getTimezoneOffset() * 60000;
-  const nd = new Date(utc + 3600000 * 8);
-  return nd.toISOString().split("T")[0];
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai" }).format(
+    new Date(),
+  );
 }
 
 // 获取 KV 键名
@@ -162,9 +164,23 @@ export async function markTokenExhausted(
     return;
   }
 
-  const store = await getTokenStatusStore(provider, env.storage);
-  store.exhausted[token] = true;
-  await saveTokenStatusStore(provider, store, env.storage);
+  // 检查是否已被标记
+  const initialStore = await getTokenStatusStore(provider, env.storage);
+  if (initialStore.exhausted[token]) {
+    return;
+  }
+
+  // 获取最新的 store 状态进行合并，减小并发写入覆盖（Race Condition）的窗口
+  const latestStore = await getTokenStatusStore(provider, env.storage);
+
+  if (latestStore.date === initialStore.date) {
+    latestStore.exhausted[token] = true;
+    await saveTokenStatusStore(provider, latestStore, env.storage);
+  } else {
+    // 跨天情况
+    initialStore.exhausted[token] = true;
+    await saveTokenStatusStore(provider, initialStore, env.storage);
+  }
 
   console.log(
     `[TokenManager] Token exhausted for ${provider}: ${token.substring(

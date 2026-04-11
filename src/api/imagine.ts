@@ -1,4 +1,5 @@
 import type { Context } from "hono";
+import { z } from "zod";
 import {
   providerRegistry,
   getAvailableModels,
@@ -33,14 +34,22 @@ export async function proxyRequest(c: Context) {
     };
 
     const providerAction = actionMap[action] || action;
-
-    // 对于 edit action，使用 FormData
     let model: string;
     let params: any;
 
     if (action === "edit") {
       const formData = await c.req.formData();
       model = formData.get("model") as string;
+
+      if (!model || typeof model !== "string") {
+        return c.json(
+          {
+            error: "Invalid parameters",
+            message: "model is required as string",
+          },
+          400,
+        );
+      }
 
       // 提取所有参数
       params = {};
@@ -57,22 +66,40 @@ export async function proxyRequest(c: Context) {
           params[key] = value;
         }
       }
-    } else {
-      // 其他 action 使用 JSON
-      const body = await c.req.json();
-      model = body.model;
-      const { model: _, ...rest } = body;
-      params = rest;
-    }
 
-    if (!model) {
-      return c.json(
-        {
-          error: "Missing required parameters",
-          message: "model is required",
-        },
-        400,
-      );
+      if (!params.image || params.image.length === 0) {
+        return c.json(
+          {
+            error: "Invalid parameters",
+            message: "image parameter is required for edit action",
+          },
+          400,
+        );
+      }
+    } else {
+      // 其他 action 使用 JSON，并通过 zod 提前验证边界
+      const body = await c.req.json().catch(() => ({}));
+
+      const baseSchema = z
+        .object({
+          model: z.string().min(1, "model is required"),
+        })
+        .passthrough();
+
+      const parseResult = baseSchema.safeParse(body);
+      if (!parseResult.success) {
+        return c.json(
+          {
+            error: "Invalid parameters",
+            message: parseResult.error.issues[0].message,
+          },
+          400,
+        );
+      }
+
+      const { model: _, ...rest } = parseResult.data;
+      model = _;
+      params = rest;
     }
 
     if (!action) {
@@ -141,7 +168,15 @@ export async function getTaskStatus(c: Context) {
 
     const kvResult = await env.VIDEO_TASK_KV.get(taskId);
     if (kvResult) {
-      const taskData = JSON.parse(kvResult);
+      let taskData: any;
+      try {
+        taskData = JSON.parse(kvResult);
+      } catch {
+        return c.json(
+          { status: "error", message: "Corrupted task data in storage" },
+          500,
+        );
+      }
 
       if (taskData.status === "processing") {
         const provider = providerRegistry.get(taskData.provider);

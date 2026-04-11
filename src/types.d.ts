@@ -36,8 +36,10 @@ export type Bindings = {
   MODELSCOPE_TOKENS?: string;
   A4F_TOKENS?: string;
   MODELSLAB_API_KEY?: string;
+  ALLOWED_ORIGINS?: string;
   // Cloudflare KV (可选)
   TOKEN_STATUS_KV?: KVNamespace;
+  VIDEO_TASK_KV?: KVNamespace;
   // Unstorage 实例
   storage?: Storage;
 };

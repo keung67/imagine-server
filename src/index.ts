@@ -32,17 +32,21 @@ app.use("*", async (c, next) => {
 });
 
 // 全局 CORS 配置（在认证之前）
-app.use(
-  "/*",
-  cors({
-    origin: "*",
+app.use("/*", async (c, next) => {
+  const allowedConfig = c.env.ALLOWED_ORIGINS;
+  const allowedOrigins = allowedConfig
+    ? allowedConfig.split(",").map((o: string) => o.trim())
+    : ["*"];
+
+  return cors({
+    origin: allowedOrigins.includes("*") ? "*" : allowedOrigins,
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     exposeHeaders: ["Content-Length", "Content-Type"],
     maxAge: 86400,
     credentials: true,
-  }),
-);
+  })(c, next);
+});
 app.use(logger());
 
 // 应用认证中间件到需要认证的 API 路由
@@ -75,9 +79,28 @@ app.use("/v1/*", async (c, next) => {
   // 提取 token
   const token = authHeader.substring(7); // 移除 "Bearer " 前缀
 
+  // 简单的固定时间比较函数（减缓时序攻击）
+  const timingSafeEqual = (a: string, b: string) => {
+    if (a.length !== b.length) return false;
+    let result = 0;
+    for (let i = 0; i < a.length; i++) {
+      result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    }
+    return result === 0;
+  };
+
   // 验证 token
   const validTokens = tokens.split(",").map((t) => t.trim());
-  if (!validTokens.includes(token)) {
+  let isValid = false;
+
+  for (const validToken of validTokens) {
+    if (timingSafeEqual(validToken, token)) {
+      isValid = true;
+      break;
+    }
+  }
+
+  if (!isValid) {
     return c.json({ error: "Unauthorized", message: "Invalid token" }, 401);
   }
 

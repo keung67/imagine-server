@@ -184,7 +184,7 @@ export class GiteeProvider extends BaseProvider {
       if (!response.ok) {
         const errData: any = await response.json().catch(() => ({}));
         throw new Error(
-          errData.message || `Gitee AI API Error: ${response.status}`
+          errData.message || `Gitee AI API Error: ${response.status}`,
         );
       }
 
@@ -233,7 +233,7 @@ export class GiteeProvider extends BaseProvider {
         JSON.stringify({
           url: "https://gitee.com/realhugh/materials/raw/master/Qwen-Image-Edit-Lightning-8steps-V1.0.safetensors",
           weight: 1,
-        })
+        }),
       );
 
       image.forEach((blob) => {
@@ -251,7 +251,7 @@ export class GiteeProvider extends BaseProvider {
       if (!response.ok) {
         const errData: any = await response.json().catch(() => ({}));
         throw new Error(
-          errData.message || `Gitee AI Image Edit Error: ${response.status}`
+          errData.message || `Gitee AI Image Edit Error: ${response.status}`,
         );
       }
 
@@ -357,7 +357,7 @@ export class GiteeProvider extends BaseProvider {
           token,
           createdAt: new Date().toISOString(),
         }),
-        { expirationTtl: 86400 }
+        { expirationTtl: 86400 },
       );
 
       return { taskId, predict: 400 };
@@ -390,7 +390,7 @@ export class GiteeProvider extends BaseProvider {
             provider: "gitee",
             url: result.url,
             completedAt: new Date().toISOString(),
-          })
+          }),
         );
 
         return { status: "success", url: result.url };
@@ -409,7 +409,7 @@ export class GiteeProvider extends BaseProvider {
             provider: "gitee",
             error: result.error || "Video generation failed",
             failedAt: new Date().toISOString(),
-          })
+          }),
         );
 
         return {
@@ -417,7 +417,7 @@ export class GiteeProvider extends BaseProvider {
           error: result.error || "Video generation failed",
         };
       }
-    } catch (error: any) {
+    } catch {
       return {
         status: "failed",
         error: "Video generation failed",

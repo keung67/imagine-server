@@ -84,7 +84,7 @@ export abstract class BaseProvider implements IProvider {
    */
   protected throwUnsupportedAction(action: string): never {
     throw new Error(
-      `Action '${action}' is not supported for ${this.name} provider`
+      `Action '${action}' is not supported for ${this.name} provider`,
     );
   }
 }
