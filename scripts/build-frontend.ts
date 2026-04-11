@@ -71,7 +71,7 @@ export default defineConfig(({ mode }) => {
       env: buildEnv,
       stdio: "inherit",
     });
-  } catch (err) {
+  } catch (err: any) {
     execSync("pnpm run build", {
       cwd: TEMP_DIR,
       env: buildEnv,

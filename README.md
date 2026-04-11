@@ -8,7 +8,7 @@
 
 ## ✨ 特性
 
-- 🎨 **多模型支持** - 集成 FLUX、Qwen、Z-Image 等多个先进的 AI 模型
+- 🎨 **多模型支持** - 集成 FLUX、Qwen、Z-Image、Gemini、Grok、OpenAI、ModelsLab 等多个先进的 AI 模型
 - 🖼️ **Web UI 界面** - 集成 [Peinture](https://github.com/Amery2010/peinture) 提供友好的图形界面
 - 🔌 **插件化架构** - 模块化的 Provider 系统，轻松扩展新的 AI 服务提供商
 - 🔄 **智能 Token 管理** - 自动切换和管理多个 API Token，配额耗尽时自动切换
@@ -46,6 +46,9 @@
 - DeepSeek V3.2
 - Qwen 3
 - OpenAI GPT (via Pollinations)
+- Gemini (Pro/Flash)
+- Grok 4 系列
+- OpenAI GPT-5.4 系列
 
 ## 🚀 快速开始
 
@@ -92,6 +95,15 @@ API_TOKEN=your-secret-token-1,your-secret-token-2
 HUGGINGFACE_TOKENS=hf_token1,hf_token2,hf_token3
 GITEE_TOKENS=gitee_token1,gitee_token2
 MODELSCOPE_TOKENS=ms_token1,ms_token2
+GEMINI_TOKENS=gemini_token1,gemini_token2
+MODELSLAB_TOKENS=modelslab_token1,modelslab_token2
+GROK_TOKENS=grok_token1,grok_token2
+OPENAI_TOKENS=openai_token1,openai_token2
+
+# 可选的 API Base 配置 (若不填则使用默认官方地址)
+# GEMINI_API_BASE=https://generativelanguage.googleapis.com/v1beta
+# GROK_API_BASE=https://api.x.ai/v1
+# OPENAI_API_BASE=https://api.openai.com/v1
 
 # 存储配置（选择其一）
 # Vercel KV (Upstash Redis)
@@ -442,6 +454,53 @@ Content-Type: application/json
 ```
 
 ## 🎨 支持的模型
+
+### Google Gemini
+
+| 模型 ID                  | 名称            | 类型        |
+| ------------------------ | --------------- | ----------- |
+| `gemini/nano-banana-2`   | Nano Banana 2   | image2image |
+| `gemini/nano-banana-pro` | Nano Banana Pro | image2image |
+| `gemini/nano-banana`     | Nano Banana     | image2image |
+| `gemini/gemini-3.1-pro`  | Gemini 3.1 Pro  | text2text   |
+| `gemini/gemini-3-flash`  | Gemini 3 Flash  | text2text   |
+| `gemini/gemini-2.5-pro`  | Gemini 2.5 Pro  | text2text   |
+| `gemini/veo-3.1`         | Veo 3.1         | text2video  |
+| `gemini/veo-3`           | Veo 3           | text2video  |
+
+### ModelsLab
+
+| 模型 ID                      | 名称                 | 类型       |
+| ---------------------------- | -------------------- | ---------- |
+| `modelslab/flux`             | Flux (ModelsLab)     | text2image |
+| `modelslab/flux-dev`         | Flux Dev (ModelsLab) | text2image |
+| `modelslab/sdxl`             | Stable Diffusion XL  | text2image |
+| `modelslab/realistic-vision` | Realistic Vision v6  | text2image |
+| `modelslab/cogvideox-5b`     | CogVideoX-5B         | text2video |
+
+### xAI (Grok)
+
+| 模型 ID                             | 名称                    | 类型        |
+| ----------------------------------- | ----------------------- | ----------- |
+| `grok/grok-imagine-image`           | Grok Imagine Image      | image2image |
+| `grok/grok-imagine-image-pro`       | Grok Imagine Image Pro  | image2image |
+| `grok/grok-4.20-0309-reasoning`     | Grok 4.2 Reasoning      | text2text   |
+| `grok/grok-4.20-0309-non-reasoning` | Grok 4.2                | text2text   |
+| `grok/grok-4-1-fast-reasoning`      | Grok 4.1 Fast Reasoning | text2text   |
+| `grok/grok-4-1-fast-non-reasoning`  | Grok 4.1 Fast           | text2text   |
+| `grok/grok-imagine-video`           | Grok Imagine Video      | text2video  |
+
+### OpenAI
+
+| 模型 ID                           | 名称             | 类型        |
+| --------------------------------- | ---------------- | ----------- |
+| `openai/gpt-image-1.5-2025-12-16` | GPT Image 1.5    | image2image |
+| `openai/gpt-image-1-mini`         | GPT Image 1 Mini | image2image |
+| `openai/gpt-5.4`                  | GPT-5.4          | text2text   |
+| `openai/gpt-5.4-mini`             | GPT-5.4 mini     | text2text   |
+| `openai/gpt-5.4-nano`             | GPT-5.4 nano     | text2text   |
+| `openai/sora-2`                   | Sora 2           | text2video  |
+| `openai/sora-2-pro`               | Sora 2 Pro       | text2video  |
 
 ### Gitee AI
 

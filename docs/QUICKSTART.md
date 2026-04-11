@@ -40,6 +40,15 @@ cp .env.example .env
 HUGGINGFACE_TOKENS=hf_your_token_here
 GITEE_TOKENS=gitee_your_token_here
 MODELSCOPE_TOKENS=ms_your_token_here
+GEMINI_TOKENS=gemini_your_token_here
+MODELSLAB_TOKENS=modelslab_your_token_here
+GROK_TOKENS=grok_your_token_here
+OPENAI_TOKENS=openai_your_token_here
+
+# 可选的 API Base 配置
+# GEMINI_API_BASE=https://generativelanguage.googleapis.com/v1beta
+# GROK_API_BASE=https://api.x.ai/v1
+# OPENAI_API_BASE=https://api.openai.com/v1
 
 # 可选：API 访问控制
 API_TOKEN=your-secret-token
@@ -50,6 +59,10 @@ API_TOKEN=your-secret-token
 - **Hugging Face**: https://huggingface.co/settings/tokens
 - **Gitee AI**: https://ai.gitee.com/
 - **ModelScope**: https://modelscope.cn/
+- **Google Gemini**: https://aistudio.google.com/app/apikey
+- **ModelsLab**: https://modelslab.com/dashboard/settings/api-keys
+- **Grok (xAI)**: https://console.x.ai/
+- **OpenAI**: https://platform.openai.com/api-keys
 
 ## 步骤 4: 启动开发服务器
 

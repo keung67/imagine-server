@@ -137,6 +137,11 @@ export async function proxyRequest(c: Context) {
       ...params,
     });
 
+    // 如果 provider 返回的是 Response 对象（流式），直接透传
+    if (result instanceof Response) {
+      return result;
+    }
+
     return c.json(result);
   } catch (error: any) {
     console.error("Proxy request error:", error);

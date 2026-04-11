@@ -2,7 +2,15 @@ import type { Context } from "hono";
 import type { Storage } from "unstorage";
 import type { Bindings } from "../types";
 
-export type Provider = "huggingface" | "gitee" | "modelscope" | "a4f";
+export type Provider =
+  | "huggingface"
+  | "gitee"
+  | "modelscope"
+  | "a4f"
+  | "gemini"
+  | "grok"
+  | "openai"
+  | "modelslab";
 
 // Token 状态存储结构
 interface TokenStatusStore {
@@ -109,6 +117,18 @@ export function getTokens(provider: Provider, env: Bindings): string[] {
       break;
     case "a4f":
       tokensString = env.A4F_TOKENS;
+      break;
+    case "gemini":
+      tokensString = env.GEMINI_TOKENS;
+      break;
+    case "grok":
+      tokensString = env.GROK_TOKENS;
+      break;
+    case "openai":
+      tokensString = env.OPENAI_TOKENS;
+      break;
+    case "modelslab":
+      tokensString = env.MODELSLAB_TOKENS;
       break;
   }
 
@@ -346,7 +366,16 @@ export async function hasAvailableToken(
  * 获取所有 Provider 的 Token 状态概览
  */
 export async function getAllTokenStats(env: Bindings) {
-  const providers: Provider[] = ["huggingface", "gitee", "modelscope", "a4f"];
+  const providers: Provider[] = [
+    "huggingface",
+    "gitee",
+    "modelscope",
+    "a4f",
+    "gemini",
+    "grok",
+    "openai",
+    "modelslab",
+  ];
   const stats: Record<string, any> = {};
 
   for (const provider of providers) {

@@ -5,6 +5,9 @@ import { HuggingFaceProvider } from "./huggingface";
 import { ModelScopeProvider } from "./modelscope";
 import { A4FProvider } from "./a4f";
 import { ModelsLabProvider } from "./modelslab";
+import { GeminiProvider } from "./gemini";
+import { GrokProvider } from "./grok";
+import { OpenAIProvider } from "./openai";
 import { hasAvailableToken } from "../api/token-manager";
 
 /**
@@ -108,6 +111,9 @@ providerRegistry.register(new HuggingFaceProvider());
 providerRegistry.register(new ModelScopeProvider());
 providerRegistry.register(new A4FProvider());
 providerRegistry.register(new ModelsLabProvider());
+providerRegistry.register(new GeminiProvider());
+providerRegistry.register(new GrokProvider());
+providerRegistry.register(new OpenAIProvider());
 
 /**
  * 获取所有可用模型列表（不过滤）

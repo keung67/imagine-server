@@ -35,7 +35,10 @@ export type Bindings = {
   GITEE_TOKENS?: string;
   MODELSCOPE_TOKENS?: string;
   A4F_TOKENS?: string;
-  MODELSLAB_API_KEY?: string;
+  MODELSLAB_TOKENS?: string;
+  GEMINI_TOKENS?: string;
+  GROK_TOKENS?: string;
+  OPENAI_TOKENS?: string;
   ALLOWED_ORIGINS?: string;
   // Cloudflare KV (可选)
   TOKEN_STATUS_KV?: KVNamespace;

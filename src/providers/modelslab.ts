@@ -1,5 +1,6 @@
 import type { Context } from "hono";
 import { BaseProvider, type ModelConfig } from "./base";
+import { runWithTokenRetry } from "../api/token-manager";
 import { getDimensions } from "./utils";
 
 const MODELSLAB_API_URL = "https://modelslab.com/api/v6";
@@ -7,7 +8,7 @@ const MODELSLAB_API_URL = "https://modelslab.com/api/v6";
 /**
  * ModelsLab Provider
  * Supports text-to-image and text-to-video generation.
- * Uses a static API key (MODELSLAB_API_KEY env var) — not rotating tokens.
+ * Uses MODELSLAB_TOKENS for multi-key rotation.
  *
  * @see https://docs.modelslab.com/image-generation/overview
  */
@@ -73,124 +74,131 @@ export class ModelsLabProvider extends BaseProvider {
       this.throwUnsupportedAction(action);
     }
 
-    const env = c.env as any;
-    const apiKey: string | undefined = env.MODELSLAB_API_KEY;
-
-    if (!apiKey) {
-      throw new Error(
-        "MODELSLAB_API_KEY is not set. Add it to your environment variables.",
-      );
-    }
+    const env = c.env;
 
     switch (action) {
       case "generate":
-        return this.handleGenerate(apiKey, params);
+        return this.handleGenerate(env, params);
       case "video":
-        return this.handleVideo(apiKey, params);
+        return this.handleVideo(env, params);
       default:
         this.throwUnsupportedAction(action);
     }
   }
 
-  private async handleGenerate(apiKey: string, params: any): Promise<any> {
-    const {
-      model,
-      prompt,
-      ar = "1:1",
-      seed,
-      steps = 30,
-      guidance = 7.5,
-      negativePrompt,
-    } = params;
+  private async handleGenerate(env: any, params: any): Promise<any> {
+    return await runWithTokenRetry("modelslab", env, async (token) => {
+      if (!token) {
+        throw new Error("ModelsLab API key is required");
+      }
 
-    const modelId = this.getApiModelId(model);
-    const { width, height } = getDimensions(ar, false);
-    const finalSeed = seed ?? Math.floor(Math.random() * 2147483647);
+      const {
+        model,
+        prompt,
+        ar = "1:1",
+        seed,
+        steps = 30,
+        guidance = 7.5,
+        negativePrompt,
+      } = params;
 
-    const body: Record<string, any> = {
-      key: apiKey,
-      prompt,
-      model_id: modelId,
-      width: String(width),
-      height: String(height),
-      samples: "1",
-      num_inference_steps: String(steps),
-      guidance_scale: guidance,
-      safety_checker: "no",
-      seed: finalSeed,
-    };
+      const modelId = this.getApiModelId(model);
+      const { width, height } = getDimensions(ar, false);
+      const finalSeed = seed ?? Math.floor(Math.random() * 2147483647);
 
-    if (negativePrompt) {
-      body.negative_prompt = negativePrompt;
-    }
+      const body: Record<string, any> = {
+        key: token,
+        prompt,
+        model_id: modelId,
+        width: String(width),
+        height: String(height),
+        samples: "1",
+        num_inference_steps: String(steps),
+        guidance_scale: guidance,
+        safety_checker: "no",
+        seed: finalSeed,
+      };
 
-    const response = await fetch(`${MODELSLAB_API_URL}/images/text2img`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      if (negativePrompt) {
+        body.negative_prompt = negativePrompt;
+      }
+
+      const response = await fetch(`${MODELSLAB_API_URL}/images/text2img`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `ModelsLab API error: ${response.status} ${response.statusText}`,
+        );
+      }
+
+      const data: any = await response.json();
+
+      if (data.status === "error") {
+        const msg = data.message ?? data.messege ?? "Unknown ModelsLab error";
+        throw new Error(`ModelsLab: ${msg}`);
+      }
+
+      const imageUrl = data.output?.[0];
+      if (!imageUrl) {
+        throw new Error("ModelsLab returned no images");
+      }
+
+      return {
+        url: imageUrl,
+        width,
+        height,
+        seed: finalSeed,
+        steps,
+        guidance,
+      };
     });
-
-    if (!response.ok) {
-      throw new Error(`ModelsLab API error: ${response.status} ${response.statusText}`);
-    }
-
-    const data: any = await response.json();
-
-    if (data.status === "error") {
-      const msg = data.message ?? data.messege ?? "Unknown ModelsLab error";
-      throw new Error(`ModelsLab: ${msg}`);
-    }
-
-    const imageUrl = data.output?.[0];
-    if (!imageUrl) {
-      throw new Error("ModelsLab returned no images");
-    }
-
-    return {
-      url: imageUrl,
-      width,
-      height,
-      seed: finalSeed,
-      steps,
-      guidance,
-    };
   }
 
-  private async handleVideo(apiKey: string, params: any): Promise<any> {
-    const { model, prompt, steps = 20 } = params;
-    const modelId = this.getApiModelId(model);
+  private async handleVideo(env: any, params: any): Promise<any> {
+    return await runWithTokenRetry("modelslab", env, async (token) => {
+      if (!token) {
+        throw new Error("ModelsLab API key is required");
+      }
 
-    const body = {
-      key: apiKey,
-      prompt,
-      model_id: modelId,
-      num_inference_steps: String(steps),
-    };
+      const { model, prompt, steps = 20 } = params;
+      const modelId = this.getApiModelId(model);
 
-    const response = await fetch(`${MODELSLAB_API_URL}/video/text2video`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      const body = {
+        key: token,
+        prompt,
+        model_id: modelId,
+        num_inference_steps: String(steps),
+      };
+
+      const response = await fetch(`${MODELSLAB_API_URL}/video/text2video`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        throw new Error(`ModelsLab Video API error: ${response.status}`);
+      }
+
+      const data: any = await response.json();
+
+      if (data.status === "error") {
+        const msg = data.message ?? data.messege ?? "Unknown error";
+        throw new Error(`ModelsLab video: ${msg}`);
+      }
+
+      // May return a URL directly or a processing status
+      const videoUrl = data.output?.[0] ?? data.link;
+      if (!videoUrl) {
+        // Return task id for async polling
+        return { taskId: data.id, status: "processing" };
+      }
+
+      return { url: videoUrl };
     });
-
-    if (!response.ok) {
-      throw new Error(`ModelsLab Video API error: ${response.status}`);
-    }
-
-    const data: any = await response.json();
-
-    if (data.status === "error") {
-      const msg = data.message ?? data.messege ?? "Unknown error";
-      throw new Error(`ModelsLab video: ${msg}`);
-    }
-
-    // May return a URL directly or a processing status
-    const videoUrl = data.output?.[0] ?? data.link;
-    if (!videoUrl) {
-      // Return task id for async polling
-      return { taskId: data.id, status: "processing" };
-    }
-
-    return { url: videoUrl };
   }
 }

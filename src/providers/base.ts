@@ -51,6 +51,8 @@ export interface ModelConfig {
   };
   enableHD?: boolean;
   async?: boolean;
+  /** 图片返回格式，默认 'url' */
+  responseType?: "url" | "base64";
 }
 
 /**

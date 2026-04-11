@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-04-11
+
+### Added
+
+- 🎨 **Google Gemini Provider 集成**:
+  - 新增 `GeminiProvider` 支持使用 Gemini REST API 调用。
+  - 支持图片生成及编辑（Nano Banana 系列）、文本生成（Gemini 3/3.1/2.5 Pro & Flash 系列）、以及视频生成（Veo 3/3.1 参数版）。
+  - 实现视频异步任务状态（Task-Status）轮询机制，支持自动重试机制与多 Key 轮换。
+- 🎨 **ModelsLab Provider 集成**:
+  - 新增 `ModelsLabProvider` 支持调用 ModelsLab 文生图与视频 API。
+  - 支持最新文生图模型（Flux / Flux Dev / SDXL / Realistic Vision v6）以及文生视频大模型（CogVideoX-5B）。
+- 🎨 **Grok / xAI Provider 集成**:
+  - 新增 `GrokProvider` 支持调用 xAI REST API。
+  - 集成了 Imagine 图片生成/编辑、Grok 4.1 / 4.2 各类大文本模型和 Imagine Video 视频生成。
+- 🎨 **OpenAI Provider 集成**:
+  - 新增 `OpenAIProvider` 官方原生的直接接入支持。
+  - 现已支持 GPT Image 1.5 生图、GPT-5.4 文本生成（含基于 Responses API 的流式响应透传），并实现了 Sora 2 / Sora 2 Pro 视频任务回调。
+- 🛠 **测试与持续集成**:
+  - 引入了 Vitest 测试框架来构建健壮稳定的自动化测试机制。
+- 🔐 **认证与安全**:
+  - 更严谨细致的 Zod 数据验证逻辑。
+  - 修改并强化了 Token / CORS 管理权限隔离。
+
+### Changed
+
+- 🔧 **环境变量与全代理支持**:
+  - 新增 `GEMINI_API_BASE`, `GROK_API_BASE`, `OPENAI_API_BASE` 全局可选环境变量，允许使用自定义的 API 代理分发请求。
+
+### Fixed
+
+- 🐛 **会话及请求修复**:
+  - 修复 AI 工具调用（Tool-Call）链中途被意外中断的问题，保持连续迭代运作。
+- 🛠 **前端与打包修复**:
+  - 修复 `scripts/build-frontend.ts` 构建时资源文件因解析损坏导致复制前端文件失败的问题。
+
 ## [1.2.0] - 2026-01-28
 
 ### Added

@@ -60,6 +60,10 @@ export { GiteeProvider } from "./gitee";
 export { HuggingFaceProvider } from "./huggingface";
 export { ModelScopeProvider } from "./modelscope";
 export { A4FProvider } from "./a4f";
+export { ModelsLabProvider } from "./modelslab";
+export { GeminiProvider } from "./gemini";
+export { GrokProvider } from "./grok";
+export { OpenAIProvider } from "./openai";
 
 // 导出模型列表相关函数
 export { getAvailableModels, getAvailableModelsFiltered } from "./registry";

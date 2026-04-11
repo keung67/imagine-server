@@ -19,7 +19,7 @@ hero:
 features:
   - icon: 🎨
     title: 多模型支持
-    details: 集成 FLUX、Qwen、Z-Image 等多个先进的 AI 模型
+    details: 集成 FLUX、Qwen、Z-Image、Gemini、ModelsLab、Grok、OpenAI 等多个先进的 AI 模型
   - icon: 🔌
     title: 插件化架构
     details: 模块化的 Provider 系统，轻松扩展新的 AI 服务提供商
